@@ -9,8 +9,11 @@ from tensorflow.keras.layers import (
     Flatten,
     Lambda,
     Permute,
+    Multiply,
 )
 import tensorflow.keras.backend as K
+import tensorflow as tf
+
 
 from activations import Mish
 from optimizers import Ranger
@@ -19,6 +22,8 @@ import callbacks as cb
 from layers import Attention, LayerNormalization
 from data import dataset
 from generator import generator
+
+strategy = tf.distribute.MirroredStrategy()
 
 data = dataset("data/ninaPro")
 
@@ -49,8 +54,9 @@ def build(model_fn):
         T_max=50, eta_max=1e-3, eta_min=1e-5, verbose=1, epoch_start=5
     )
     loss = l.focal_loss(gamma=3.0, alpha=6.0)
-    model = model_fn(**model_pars)
-    model.compile(Ranger(learning_rate=1e-3), loss=loss, metrics=["accuracy"])
+    with strategy.scope():
+        model = model_fn(**model_pars)
+        model.compile(Ranger(learning_rate=1e-3), loss=loss, metrics=["accuracy"])
     print(model.summary())
     return model, cosine
 
@@ -127,7 +133,7 @@ for k in stage_1.keys():
         validation_data=validation,
         callbacks=[
             ModelCheckpoint(
-                f"h5/{k}".h5,
+                f"h5/{k}.h5",
                 monitor="val_loss",
                 keep_best_only=True,
                 save_weights_only=True,
@@ -137,9 +143,10 @@ for k in stage_1.keys():
         use_multiprocessing=True,
         workers=8,
     )
-    results[k] ={}
-    results[k]['validation'] = model.evaluate(validation)
-    results[k]['test'] = model.evaluate(test)
+    results[k] = {}
+    results[k]["validation"] = model.evaluate(validation)
+    results[k]["test"] = model.evaluate(test)
 
 import joblib
-joblib.dump(results, 'stage_1.dmp')
+
+joblib.dump(results, "stage_1.dmp")

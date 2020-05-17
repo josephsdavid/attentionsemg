@@ -1,29 +1,3 @@
-deprecated/
-refactor/
-qtw_final/
-importance-sampling/
-nina/
-lstm_tuning/
-capstone/
-src/board/
-ninaPro/
-*.h5
-*.mp4
-*.gif
-*.json
-src/result/att_tune/
-src/result/blstm_tuning
-src/result/best_history.obj
-#result
-#data/
-# for davids health
-*.nix
-nix/
-.envrc
-
-
-# tensorboard logs
-logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

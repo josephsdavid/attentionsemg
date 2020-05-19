@@ -23,9 +23,6 @@ class Attention(Layer):
         # Output shape
             2D tensor with shape: `(samples, features)`.
         :param kwargs:
-        Just put it on top of an RNN Layer (GRU/LSTM/SimpleRNN) with return_sequences=True.
-        The dimensions are inferred based on the output shape of the RNN.
-        Note: The layer has been tested with Keras 1.x
         """
         self.supports_masking = True
         self.return_attention = return_attention

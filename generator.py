@@ -22,10 +22,10 @@ class generator(Sequence):
         self.batch_size = batch_size
         self.imu = imu
         idxs = np.where(np.isin(d.repetition, np.array(repetitions)))
-        self.X = d.emg[idxs]
+        self.X = d.emg[idxs].copy()
         if imu:
-            self.X = np.concatenate([self.X, d.imu[idxs]], axis=-1)
-        self.y = to_categorical(d.labels[idxs])
+            self.X = np.concatenate([self.X.copy(), d.imu[idxs].copy()], axis=-1)
+        self.y = to_categorical(d.labels[idxs].copy())
         self.on_epoch_end()
 
     def __len__(self):
@@ -43,7 +43,10 @@ class generator(Sequence):
         out = self.X[indexes,:,:].copy()
         if self.augment:
             for i in range(out.shape[0]):
-                out [i,:,:] = add_noise_random(out[i,:,:])
+                if self.y[i,0] == 1:
+                    out[i,:,:] = out[i,:,:]
+                else:
+                    out[i,:,:]=add_noise_random(out[i,:,:])
         if self.ma:
             out = np.moveaxis(ma_batch(out, self.ma_len), -1, 0)
         return out,  self.y[indexes,:]

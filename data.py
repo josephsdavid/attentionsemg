@@ -210,7 +210,6 @@ class dataset(object):
 
         # we split by repetition, and we do not want any data leaks. So, we
         # simply drop any window that has more than one repetition in it
-
         no_leaks = np.array(
             [
                 i
@@ -219,8 +218,8 @@ class dataset(object):
             ]
         )
 
-        self.emg = self.emg[no_leaks, :, :].astype(np.float32)
-        self.imu = self.imu[no_leaks, :, :].astype(np.float32)
+        self.emg = self.emg[no_leaks, :, :]
+        self.imu = self.imu[no_leaks, :, :]
         self.labels = self.labels[no_leaks, :]
         self.repetition = self.repetition[no_leaks, :]
 
@@ -231,3 +230,5 @@ class dataset(object):
 
         self.labels = first_appearance(self.labels)
         self.repetition = first_appearance(self.repetition)
+        self.emg = self.emg.astype(np.float16)
+        self.imu = self.imu.astype(np.float16)

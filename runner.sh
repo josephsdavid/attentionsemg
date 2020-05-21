@@ -7,4 +7,4 @@
 #SBATCH --mail-user josephsd@smu.edu
 #SBATCH --mail-type=ALL
 
-python ablation_stage_3.py
+python rnn_check.py

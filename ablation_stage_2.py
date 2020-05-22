@@ -106,32 +106,15 @@ def sum_model(n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 0
     return model
 
 
-def flat_model(n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 0.2]):
-
-    inputs = Input((n_time, n_features))
-    x = inputs
-    x = Conv1D(filters=128, kernel_size=3, padding="same", activation=Mish())(x)
-    x = LayerNormalization()(x)
-    x = Flatten()(x)
-    for d, dr in zip(dense, drop):
-        x = Dropout(dr)(x)
-        x = Dense(d, activation=Mish())(x)
-        x = LayerNormalization()(x)
-    outputs = Dense(n_class, activation="softmax")(x)
-    model = Model(inputs, outputs)
-    return model
-
-
 '''
 stage 2: interest in feed forward area:
     raffel attention
     sum
-    flatten
 base accuracy:
     0.87
 '''
 
-stage_2 = dict(zip(["raffel","sum","flat"], [raffel_model, sum_model, flat_model]))
+stage_2 = dict(zip(["raffel","sum"], [raffel_model, sum_model]))
 
 for k in stage_2.keys():
     model, cosine = build(stage_2[k])

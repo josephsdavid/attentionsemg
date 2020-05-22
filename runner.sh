@@ -7,4 +7,4 @@
 #SBATCH --mail-user josephsd@smu.edu
 #SBATCH --mail-type=ALL
 
-python rnn_check.py
+python rnn_no_layer_norm.py

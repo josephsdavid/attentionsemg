@@ -71,7 +71,9 @@ def attention_simple(inputs, n_time):
     return output_flat, a_probs
 
 
-def base_model(n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 0.2]):
+base_model(x, **model_pars)
+
+def base_model(x ,n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 0.2]):
     inputs = Input((n_time, n_features))
     x = inputs
     x = Conv1D(filters=128, kernel_size=3, padding="same", activation=Mish())(x)

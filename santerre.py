@@ -9,6 +9,7 @@ from tensorflow.keras.layers import (
     Lambda,
     Permute,
     Multiply,
+    Flatten,
 )
 import tensorflow.keras.backend as K
 import tensorflow as tf
@@ -96,16 +97,17 @@ def attention_simple(inputs, n_time):
 
 def make_model(n_time, n_class, n_features, dense, drop):
     inputs = Input((n_time, n_features))
-    x = inputs
-    x = Conv1D(filters=128, kernel_size=3, padding="same", activation=Mish())(x)
-    x = LayerNormalization()(x)
-    x = attention_simple(x, n_time)
+    x = Flatten()(inputs)
+    #x = Conv1D(filters=n_features, kernel_size=3, padding="same", activation=Mish())(x)
+    #x = LayerNormalization()(x)
+    #x = attention_simple(x, n_time)
     for d, dr in zip(dense, drop):
         x = Dropout(dr)(x)
         x = Dense(d, activation=Mish())(x)
         x = LayerNormalization()(x)
     outputs = Dense(n_class, activation="softmax")(x)
     model = Model(inputs, outputs)
+    print(model.summary())
     return model
 
 model = make_model(**model_pars)

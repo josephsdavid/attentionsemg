@@ -91,8 +91,7 @@ def base_model(n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 
 
 path_dict = {
         'sEMG':'h5/cv_error_bar/',
-#        'sEMG+IMU':'h5/cv_imu_error_bar/'
-# uncomment this when that has run
+        'sEMG+IMU':'h5/cv_imu_error_bar/'
         }
 
 imu_dict = {
@@ -101,7 +100,11 @@ imu_dict = {
         }
 
 
-preds = {'sEMG':[],'sEMG+IMU':[]}
+preds = {
+    'sEMG':[],
+   # 'sEMG+IMU':[]
+# uncomment this when that has run
+    }
 labels = {'sEMG':[],'sEMG+IMU':[]}
 
 print("prinintg")

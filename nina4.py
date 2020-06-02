@@ -54,14 +54,14 @@ train = generator(
     augment = True, # applies noise at a spectrum of SNR ratios to data. Does not augment if class is zero to combat imbalance
     ma = True # bool for moving average or not (applied in __getitem__)
 )
-validation = generator(data, list(val_reps), augment=False)
-test = generator(data, [test_reps][0], augment=False)
+
+print("bam!")
+validation = generator(data, list(val_reps), augment=False, ma=True)
+test = generator(data, [test_reps][0], augment=False, ma=True)
 
 n_time = train[0][0].shape[1]
 n_class = train[0][-1].shape[-1]
 n_features = train[0][0].shape[-1]
-
-import pdb; pdb.set_trace()  # XXX BREAKPOINT
 
 model_pars = {
     "n_time": n_time,
@@ -98,8 +98,8 @@ def attention_simple(inputs, n_time):
 
 def make_model(n_time, n_class, n_features, dense, drop):
     inputs = Input((n_time, n_features))
-    # x = Flatten()(inputs)
-    x = Conv1D(filters=n_features, kernel_size=3, padding="same", activation=Mish())(x)
+    x = inputs
+    x = Conv1D(filters=128, kernel_size=3, padding="same", activation=Mish())(x)
     x = LayerNormalization()(x)
     x = attention_simple(x, n_time)
     for d, dr in zip(dense, drop):
@@ -120,16 +120,12 @@ model.fit(
     epochs=55,
     validation_data=validation,
     callbacks=[
-        ModelCheckpoint(
-            f"fiddle.h5",
-            monitor="val_loss",
-            keep_best_only=True,
-            save_weights_only=True,
-        ),
         cosine,
     ],
     shuffle = False, # shuffling is done by the generator, if you shuffle here it will be infinitely slower
 )
 
-import pdb; pdb.set_trace()  # XXX BREAKPOINT
 
+x = model.evaluate(test)
+
+print(f"test_acc: {x[-1]}")

@@ -30,14 +30,12 @@ strategy = tf.distribute.MirroredStrategy()
 data = dataset("data/ninaPro")
 
 reps = np.unique(data.repetition)
-val_reps = reps[3::2]
-train_reps = reps[np.where(np.isin(reps, val_reps, invert=True))]
-test_reps = val_reps[-1].copy()
-val_reps = val_reps[:-1]
+test_reps = [int(sys.argv[-1])]
+train_reps = reps[np.where(np.isin(reps, test_reps, invert=True))]
 
 train = generator(data, list(train_reps), imu=True)
-validation = generator(data, list(val_reps), augment=False, imu=True)
-test = generator(data, [test_reps][0], augment=False, imu=True)
+test = generator(data, test_reps, augment=False, imu=True)
+
 
 n_time = train[0][0].shape[1]
 n_class = 53
@@ -95,11 +93,9 @@ results = {}
 model.fit(
     train,
     epochs=55,
-    validation_data=validation,
     callbacks=[
         ModelCheckpoint(
-            f"h5/imu_error_bar/{i}.h5",
-            monitor="val_loss",
+            f"h5/cv_imu_error_bar/{i}.h5",
             keep_best_only=True,
             save_weights_only=True,
         ),
@@ -109,8 +105,5 @@ model.fit(
     workers=8,
     shuffle = False,
 )
-results["validation"] = model.evaluate(validation)
 results["test"] = model.evaluate(test)
 
-with open("err.txt","a") as f:
-    f.write(results)

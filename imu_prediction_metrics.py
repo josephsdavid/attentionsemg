@@ -46,10 +46,10 @@ def gen_to_nmpy(gen, file_name=None, y_raw=False):
     xx = xx_imu[:,:,:-3]
     yy = np.vstack([y for x,y in gen])
     if file_name:
-        np.save(f'{file_name}_xx_imu',xx_imu)
-        np.save(f'{file_name}_xx',xx)
-        np.save(f'{file_name}_yy_raw',yy)
-        np.save(f'{file_name}_yy',np.argmax(yy, axis=1))
+        np.save(f'figures/data/{file_name}_xx_imu',xx_imu)
+        np.save(f'figures/data/{file_name}_xx',xx)
+        np.save(f'figures/data/{file_name}_yy_raw',yy)
+        np.save(f'figures/data/{file_name}_yy',np.argmax(yy, axis=1))
     if not y_raw:
         yy = np.argmax(yy, axis=1)
     return xx_imu, xx, yy
@@ -78,11 +78,12 @@ validation = generator(data, list(val_reps), augment=False, imu=True)
 test = generator(data, [test_reps][0], augment=False, imu=True)
 
 #%%
+# UNCOMMENT FOR NPY
 # val_x_imu, val_x, val_y = gen_to_nmpy(validation, 'val')
 # test_x_imu, test_x, test_y = gen_to_nmpy(test, 'test')
 # del train
-val_x_imu, val_x, val_y = np.load('val_xx_imu.npy'), np.load('val_xx.npy'), np.load('val_yy.npy')
-test_x_imu, test_x, test_y = np.load('test_xx_imu.npy'), np.load('test_xx.npy'), np.load('test_yy.npy')
+val_x_imu, val_x, val_y = np.load('figures/data/val_xx_imu.npy'), np.load('figures/data/val_xx.npy'), np.load('figures/data/val_yy.npy')
+test_x_imu, test_x, test_y = np.load('figures/data/test_xx_imu.npy'), np.load('figures/data/test_xx.npy'), np.load('figures/data/test_yy.npy')
 #%%
 loss = l.focal_loss(gamma=3., alpha=6.)
 model_pars = build_model_pars(val_x.shape[1], 53, val_x.shape[-1])
@@ -130,31 +131,7 @@ def set_weights(model, h5_path):
     model.compile(Ranger(learning_rate=1e-3), loss=loss, metrics=["accuracy"])
     return model
 
-#%%
-## Prediction Functions
-# def build_pred(model, weight_fn, weightPath='h5', data, process_fn=None):
-#     pred = []
-def baselineMetrics(t,b):
-    _acc = accuracy_score(t,b)
-    _accBal = balanced_accuracy_score(t,b)
-    _matt = matthews_corrcoef(t,b)
-    _prfs = precision_recall_fscore_support(t,b,average='weighted')
-    return {
-        'Acc': np.round(_acc,4),
-        'Balanced Acc': np.round(_accBal,4),
-        'MCC': np.round(_matt,4),
-        'Precision': np.round(_prfs[0],4),
-        'Recall': np.round(_prfs[1],4),
-        'f1-Score': np.round(_prfs[2],4)
-    }
 
-def get_pred_data(path_pairs=[]):
-    pairs = []
-    for y,p in path_pairs:
-        t = np.load(y)
-        m = [[v for v in baselineMetrics(t,_p).values()] for _p in np.load(p)]
-        pairs.append(m)
-    return np.array(pairs)
 
 
 #%%
@@ -178,14 +155,15 @@ for i in range(1,31):
 predictions_v = [np.argmax(p, axis=1) for p in predictions_v_raw]
 predictions_t = [np.argmax(p, axis=1) for p in predictions_t_raw]
 #%%
+# ** UNCOMMENT HERE TO BUILD npy FILES **
 # Need to make this whole generation process into fuctions...maybe classes
-# np.save('predictions_v_raw',predictions_v_raw)
+# np.save('figures/data/predictions_v_raw',predictions_v_raw)
 # predictions_v_raw = None
-# np.save('predictions_v',predictions_v)
+# np.save('figures/data/predictions_v',predictions_v)
 # predictions_v = None
-# np.save('predictions_t_raw',predictions_t_raw)
+# np.save('figures/data/predictions_t_raw',predictions_t_raw)
 # predictions_t_raw = None
-# np.save('predictions_t',predictions_t)
+# np.save('figures/data/predictions_t',predictions_t)
 # predictions_t = None
 model =None
 #%%
@@ -204,13 +182,14 @@ predictions_v_imu = [np.argmax(p, axis=1) for p in predictions_v_imu_raw]
 predictions_t_imu = [np.argmax(p, axis=1) for p in predictions_t_imu_raw]
 
 #%%
-# np.save('predictions_v_imu_raw',predictions_v_imu_raw)
+# ** UNCOMMENT HERE TO BUILD npy FILES **
+# np.save('figures/data/predictions_v_imu_raw',predictions_v_imu_raw)
 # predictions_v_imu_raw = None
-# np.save('predictions_v_imu',predictions_v_imu)
+# np.save('figures/data/predictions_v_imu',predictions_v_imu)
 # predictions_v_imu = None
-# np.save('predictions_t_imu_raw',predictions_t_imu_raw)
+# np.save('figures/data/predictions_t_imu_raw',predictions_t_imu_raw)
 # predictions_t_imu_raw = None
-# np.save('predictions_t_imu',predictions_t_imu)
+# np.save('figures/data/predictions_t_imu',predictions_t_imu)
 # predictions_t_imu = None
 model_imu = None
 

@@ -103,7 +103,7 @@ cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
 # %%
 plot_conf = {
     'title':'Gesture Classification',
-    'xlabel':[list(ysets.keys())],
+    'xlabel':list(ysets.keys()),
     'ylabel': 'Balanced Accuracy'
 }
 
@@ -115,7 +115,7 @@ def build_bar_plot(lines,errors,filePath=None,**kwargs):
     ax.set_ylabel(kwargs['ylabel'])
     ax.set_ylim([0,1])
     ax.set_xticks(x_pos)
-    ax.set_xticklabels(list(kwargs['xlabel']))
+    ax.set_xticklabels(kwargs['xlabel'],rotation=45, ha='right')
     ax.set_title(kwargs['title'])
     ax.yaxis.grid(True)
 

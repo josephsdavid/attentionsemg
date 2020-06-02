@@ -102,9 +102,9 @@ cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
 # np.save('data/errors.npy',errors)
 # %%
 plot_conf = {
-    'title':'Gesture Classification',
+    'title':'Model Accuracy\n(Simple vs Balanced)',
     'xlabel':data_titles,
-    'ylabel': 'Balanced Accuracy'
+    'ylabel': 'Accuracy'
 }
 
 def build_bar_plot(bars,filePath=None,**kwargs):
@@ -139,6 +139,6 @@ bars = [
     [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
     ]
 
-build_bar_plot(bars, filePath='balanced_bplot_w_err_v_and_t.png', **plot_conf)
+build_bar_plot(bars, filePath='plots/acc_vt.png', **plot_conf)
 
 # %%

@@ -1,6 +1,7 @@
 result/*
-nina4/*
 othernina/*
+nina4/*
+biopat/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -117,4 +118,5 @@ augmented/*.npy
 tmux.conf
 
 data/*
+*/data/*.npy
 !data/*.sh

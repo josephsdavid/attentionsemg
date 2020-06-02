@@ -27,25 +27,26 @@ from layers import Attention, LayerNormalization
 from data import dataset, ma_batch
 from generator import generator
 
-data = dataset("data/ninaPro")
+#data = dataset("data/ninaPro")
+#
+#reps = np.unique(data.repetition)
+#val_reps = reps[3::2]
+#train_reps = reps[np.where(np.isin(reps, val_reps, invert=True))]
+#test_reps = val_reps[-1].copy()
+#val_reps = val_reps[:-1]
+#
+#train = generator(data, list(train_reps), augment = False, shuffle = False)
+#validation = generator(data, list(val_reps), augment=False, shuffle = False)
+#test = generator(data, [test_reps][0], augment=False, shuffle = False)
 
-reps = np.unique(data.repetition)
-val_reps = reps[3::2]
-train_reps = reps[np.where(np.isin(reps, val_reps, invert=True))]
-test_reps = val_reps[-1].copy()
-val_reps = val_reps[:-1]
 
-train = generator(data, list(train_reps), augment = False, shuffle = False)
-validation = generator(data, list(val_reps), augment=False, shuffle = False)
-test = generator(data, [test_reps][0], augment=False, shuffle = False)
-
-
-def get_arrays(g: generator) -> Iterable[np.ndarray]:
-	return np.moveaxis(ma_batch(g.X, g.ma_len), -1, 0), g.y
-
-# we will look at non imu data here, this takes a long time (ma_batch is not
-# fast)
-(train_x, train_y), (val_x, val_y), (test_x, test_y) = (get_arrays(g) for g in [train, validation, test])
+#def get_arrays(g: generator) -> Iterable[np.ndarray]:
+#	return np.moveaxis(ma_batch(g.X, g.ma_len), -1, 0), g.y
+#
+#
+## we will look at non imu data here, this takes a long time (ma_batch is not
+## fast)
+#(train_x, train_y), (val_x, val_y), (test_x, test_y) = (get_arrays(g) for g in [train, validation, test])
 
 
 h5_dir = "h5/"
@@ -255,13 +256,17 @@ for model_tuple in model_file_list:
     name = get_name(model_tuple[0])
     results[name] = {}
     model = build(*model_tuple)
-    train_loss = model.evaluate(train_x, train_y)[0]
-    test_loss = model.evaluate(test_x, test_y)[0]
-    results[name]['test/train'] = train_loss/test_loss
-    test_preds = model.predict(test_x)
-    results[name]['accuarcy'] = accuracy_score(test_y.argmax(-1),test_preds.argmax(-1))
-    results[name]['matthews_corrcoef'] = matthews_corrcoef(test_y.argmax(-1),test_preds.argmax(-1))
-    results[name]['roc_auc_score'] = roc_auc_score(test_y,test_preds)
-    results[name]['balacc'] = balanced_accuracy_score(test_y.argmax(-1),test_preds.argmax(-1))
-    results[name]['logloss'] = log_loss(test_y, test_preds)
+    print(name)
+    print(model.count_params())
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
+
+ #   train_loss = model.evaluate(train_x, train_y)[0]
+ #   test_loss = model.evaluate(test_x, test_y)[0]
+ #   results[name]['test/train'] = train_loss/test_loss
+ #   test_preds = model.predict(test_x)
+ #   results[name]['accuarcy'] = accuracy_score(test_y.argmax(-1),test_preds.argmax(-1))
+ #   results[name]['matthews_corrcoef'] = matthews_corrcoef(test_y.argmax(-1),test_preds.argmax(-1))
+ #   results[name]['roc_auc_score'] = roc_auc_score(test_y,test_preds)
+ #   results[name]['balacc'] = balanced_accuracy_score(test_y.argmax(-1),test_preds.argmax(-1))
+ #   results[name]['logloss'] = log_loss(test_y, test_preds)
 import joblib; joblib.dump(results, 'ablation_results.dmp')

@@ -12,7 +12,8 @@ class generator(Sequence):
         batch_size: int = 128,
         imu: bool = False,
         augment: bool = True,
-        ma: bool = True
+        ma: bool = True,
+        has_zero: bool = True
     ) -> None:
         self.shuffle = shuffle
         self.augment = augment
@@ -21,6 +22,7 @@ class generator(Sequence):
         self.repetitions = repetitions
         self.batch_size = batch_size
         self.imu = imu
+        self.has_zero = has_zero
         idxs = np.where(np.isin(d.repetition, np.array(repetitions)))
         self.X = d.emg[idxs].copy()
         if imu:
@@ -43,10 +45,13 @@ class generator(Sequence):
         out = self.X[indexes,:,:].copy()
         if self.augment:
             for i in range(out.shape[0]):
-                if self.y[i,0] == 1:
-                    out[i,:,:] = out[i,:,:]
+                if self.has_zero:
+                    if self.y[i,0] == 1:
+                        out[i,:,:] = out[i,:,:]
+                    else:
+                        out[i,:,:]=add_noise_random(out[i,:,:])
                 else:
-                    out[i,:,:]=add_noise_random(out[i,:,:])
+                    out[i,:,:] = add_noise_random(out[i,:,:])
         if self.ma:
             out = np.moveaxis(ma_batch(out, self.ma_len), -1, 0)
         return out,  self.y[indexes,:]

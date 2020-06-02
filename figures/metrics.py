@@ -21,20 +21,36 @@ plt.style.use('bmh')
 import seaborn as sns
 
 #%%
+def underperformers(truth, pred, n_std = 0):
+    cm = confusion_matrix(truth, pred, normalize='true')
+    vals = cm.diagonal()
+    vals = vals[~np.isnan(vals)]
+    uniq = np.unique(truth)
+    c_dict = dict(zip(vals, uniq))
+    return {v: k for k, v in c_dict.items() if k <= vals.mean() - n_std* vals.std()}
+def outperformers(truth, pred, n_std = 0):
+    cm = confusion_matrix(truth, pred, normalize='true')
+    vals = cm.diagonal()
+    vals = vals[~np.isnan(vals)]
+    uniq = np.unique(truth)
+    c_dict = dict(zip(vals, uniq))
+    return {v: k for k, v in c_dict.items() if k >= vals.mean() + n_std* vals.std()}
+
+
 
 def metric_col(yt, yp, m_fn):
     # print('STARTING COL')
     yp = np.reshape(yp, (1,np.shape(yp)[0])) if np.ndim(yp)<2 else yp
     m_fn, m_par = m_fn
     results = [m_fn(yt,p,**m_par) for p in yp]
-    _mean, _ci, _std, _min_max = np.mean(results), 
-                        st.t.interval(0.95, 
-                            len(results)-1, 
-                            loc=np.mean(results), 
-                            scale=st.sem(results)
-                            ),
-                        np.std(results),
-                        (np.min(results), np.max(results))
+    [_mean, _ci, _std, _min_max] = [np.mean(results),
+                                    st.t.interval(0.95,
+                                                  len(results)-1,
+                                                  loc=np.mean(results),
+                                                  scale=st.sem(results)
+                                                  ),
+                                    np.std(results),
+                                    (np.min(results), np.max(results))]
     return [_mean, _ci, _std, _min_maxS]
     
 def metric_line(y_true, y_pred, m_fns, m_pars = None):
@@ -88,12 +104,6 @@ data_titles = [
     'sEMG+IMU\n(validation)'
     ]
 
-data_sets = map(lambda t: (np.load(f'data/{t[0]}'),np.load(f'data/{t[1]}')),path_pairs)
-
-ysets = dict(zip(data_titles,data_sets))
-
-#%%
-cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
 
 #%%
 # np.save('data/columns.npy',cols)
@@ -101,11 +111,7 @@ cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
 # np.save('data/metrics.npy',lines)
 # np.save('data/errors.npy',errors)
 # %%
-plot_conf = {
-    'title':'Model Accuracy\n(Simple vs Balanced)',
-    'xlabel':data_titles,
-    'ylabel': 'Accuracy'
-}
+
 
 def build_bar_plot(bars,filePath=None,**kwargs):
     # x_pos = np.arange(lines.shape[0])
@@ -133,12 +139,28 @@ def build_bar_plot(bars,filePath=None,**kwargs):
     plt.show()
 
 #%%
+def main():
+    data_sets = map(lambda t: (np.load(f'figures/data/{t[0]}'),np.load(f'figures/data/{t[1]}')),path_pairs)
+    ysets = dict(zip(data_titles,data_sets))
+    return ysets
+#%%
 
-bars = [
-    [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
-    [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
-    ]
+if __name__ == "__main__":
+    
 
-build_bar_plot(bars, filePath='plots/acc_vt.png', **plot_conf)
+    #%%
+    cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
+    plot_conf = {
+        'title':'Model Accuracy\n(Simple vs Balanced)',
+        'xlabel':data_titles,
+        'ylabel': 'Accuracy'
+    }
+
+    bars = [
+        [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
+        [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
+        ]
+
+    build_bar_plot(bars, filePath='plots/acc_vt.png', **plot_conf)
 
 # %%

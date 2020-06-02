@@ -118,5 +118,5 @@ augmented/*.npy
 tmux.conf
 
 data/*
-*/data/*.npy
+*/data/**.npy
 !data/*.sh

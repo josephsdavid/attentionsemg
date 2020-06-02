@@ -82,10 +82,10 @@ path_pairs = [
     ]
 
 data_titles = [
-    'sEMG (test)', 
-    'sEMG+IMU (test)', 
-    'sEMG (validation)', 
-    'sEMG+IMU (validation)'
+    'sEMG\n(test)', 
+    'sEMG+IMU\n(test)', 
+    'sEMG\n(validation)', 
+    'sEMG+IMU\n(validation)'
     ]
 
 data_sets = map(lambda t: (np.load(f'data/{t[0]}'),np.load(f'data/{t[1]}')),path_pairs)
@@ -103,30 +103,42 @@ cols, lines, errors = build_metrics(ysets, default_metrics, return_df=False)
 # %%
 plot_conf = {
     'title':'Gesture Classification',
-    'xlabel':list(ysets.keys()),
+    'xlabel':data_titles,
     'ylabel': 'Balanced Accuracy'
 }
 
-def build_bar_plot(lines,errors,filePath=None,**kwargs):
-    x_pos = np.arange(lines.shape[0])
-
-    fig, ax = plt.subplots()
-    ax.bar(x_pos, lines, yerr=errors, align='center', alpha=0.5, ecolor='black', capsize=10)
+def build_bar_plot(bars,filePath=None,**kwargs):
+    # x_pos = np.arange(lines.shape[0])
+    _w = 0.3
+    fig, ax = plt.subplots(figsize=(12,5.5))
+    for bar in bars:
+        ax.bar(bar[0], bar[1],width=_w, 
+            yerr=bar[2],
+            capsize = 3,
+            align='center', alpha=0.5, label=bar[3])
+    
+    # ax.bar(x_pos+_w/2, width= _w ,lines, yerr=errors, align='center', alpha=0.5)
     ax.set_ylabel(kwargs['ylabel'])
     ax.set_ylim([0,1])
-    ax.set_xticks(x_pos)
-    ax.set_xticklabels(kwargs['xlabel'],rotation=45, ha='right')
+    ax.set_xticks(bars[0][0]+0.3/2)
+    ax.set_xticklabels(kwargs['xlabel'],rotation=45, ha='center')
     ax.set_title(kwargs['title'])
     ax.yaxis.grid(True)
-
+    ax.legend(loc="upper right")
     # Save the figure and show
     plt.tight_layout()
     if filePath:
-        plt.savefig(filePath)
+        plt.savefig(filePath,dpi=500, size=(12, 5))
     
     plt.show()
 
 #%%
-build_bar_plot(lines[:,0,0],lines[:,0,2], filePath='balanced_bplot_w_err_v_and_t.png', **plot_conf)
+
+bars = [
+    [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
+    [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
+    ]
+
+build_bar_plot(bars, filePath='balanced_bplot_w_err_v_and_t.png', **plot_conf)
 
 # %%

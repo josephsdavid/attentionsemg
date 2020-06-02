@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#SBATCH -J error_bar
-#SBATCH -e result/eb-%j.txt
-#SBATCH -o result/eb-%j.txt
-#SBATCH -p v100x8  --gres=gpu:1 --mem=96G
-#SBATCH -t 10080
+#SBATCH -J cv
+#SBATCH -e result/%j.txt
+#SBATCH -o result/%j.txt
+#SBATCH -p gpgpu-1  --gres=gpu:1 --mem=180G
+#SBATCH -t 1440
 #SBATCH --mail-user josephsd@smu.edu
 #SBATCH --mail-type=ALL
 

@@ -9,6 +9,7 @@ from scipy.io import loadmat
 
 # local
 from label_dict import label_dict
+from bc_dict import bc_dict
 
 # build window rolling scheme
 def roll_labels(x, y):
@@ -137,7 +138,10 @@ class dataset(object):
         # machine labeled exercises
         lab = res["restimulus"].copy()
         # relabel 0:52
-        lab = np.array([[label_dict[ex][lab[i][0]]] for i in range(lab.shape[0])])
+        if 'a' not in self.exercises:
+            lab = np.array([[bc_dict[ex][lab[i][0]]] for i in range(lab.shape[0])])
+        else:
+            lab = np.array([[label_dict[ex][lab[i][0]]] for i in range(lab.shape[0])])
 
         del res
         # make it possible to engineer features

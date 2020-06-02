@@ -16,7 +16,6 @@ import seaborn as sns
 
 #%%
 
-
 def build_bar_plot(bars,filePath=None,**kwargs):
     # x_pos = np.arange(lines.shape[0])
     _w = 0.3
@@ -43,34 +42,37 @@ def build_bar_plot(bars,filePath=None,**kwargs):
     plt.show()
 
 #%%
+if __name__ == "__main__":
+    
+    path_pairs = [
+        ('test_yy.npy','predictions_t.npy'),
+        ('test_yy.npy','predictions_t_imu.npy'),
+        ('val_yy.npy','predictions_v.npy'),
+        ('val_yy.npy','predictions_v_imu.npy'),
+        ]
 
-path_pairs = [
-    ('test_yy.npy','predictions_t.npy'),
-    ('test_yy.npy','predictions_t_imu.npy'),
-    ('val_yy.npy','predictions_v.npy'),
-    ('val_yy.npy','predictions_v_imu.npy'),
-    ]
+    data_titles = [
+        'sEMG\n(test)', 
+        'sEMG+IMU\n(test)', 
+        'sEMG\n(validation)', 
+        'sEMG+IMU\n(validation)'
+        ]
 
-data_titles = [
-    'sEMG\n(test)', 
-    'sEMG+IMU\n(test)', 
-    'sEMG\n(validation)', 
-    'sEMG+IMU\n(validation)'
-    ]
+    plot_conf = {
+        'title' : 'Model Accuracy\n(Simple vs Balanced)',
+        'xlabel':  data_titles,
+        'ylabel': 'Accuracy'
+    }
 
-plot_conf = {
-    'title' : 'Model Accuracy\n(Simple vs Balanced)',
-    'xlabel':  data_titles,
-    'ylabel': 'Accuracy'
-}
+    data_sets = map(lambda t: (np.load(f'data/{t[0]}'),np.load(f'data/{t[1]}')),path_pairs)
 
-data_sets = map(lambda t: (np.load(f'data/{t[0]}'),np.load(f'data/{t[1]}')),path_pairs)
+    ysets = dict(zip(data_titles,data_sets))
 
-ysets = dict(zip(data_titles,data_sets))
+    bars = [
+        [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
+        [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
+        ]
 
-bars = [
-    [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
-    [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
-    ]
+    build_bar_plot(bars, filePath='plots/acc_vt.png', **plot_conf)
 
-build_bar_plot(bars, filePath='plots/acc_vt.png', **plot_conf)
+# %%

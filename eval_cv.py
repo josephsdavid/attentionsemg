@@ -137,11 +137,28 @@ for p in set_names:
 
 
 # %%
-setPairs = map(lambda k: np.vstack([labels[k],preds[k]]), list(labels.keys()))
-ysets = dict(zip(list(labels.keys()),setPairs))
+# setPairs = map(lambda k: np.vstack([labels[k], preds[k]]), set_names)
+[labels, preds, scores] = map(lambda a: np.array(a),[labels, preds, scores])
+ysets = dict(zip(set_names,np.moveaxis([labels, preds],0,-1)))
 
 # %%
 cols, lines, errors = build_metrics(ysets, return_df=False)
+
+
+# %%
+from figures.plots import build_bar_plot
+#%%
+plot_conf = {
+        'title':'Model Accuracy\n(Simple vs Balanced)',
+        'xlabel':set_names,
+        'ylabel': 'Accuracy'
+    }
+bars = [
+    [np.arange(lines[:,0,0].shape[0])-0.3/2,lines[:,0,0], errors[:,0].T,'Acc'],
+    [np.arange(lines[:,1,0].shape[0])+0.3/2,lines[:,1,0], errors[:,1].T,'Bal. Acc']
+    ]
+#%%
+build_bar_plot(bars, filePath='figures/plots/acc_cv.png', **plot_conf)
 
 
 # %%

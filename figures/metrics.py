@@ -38,11 +38,11 @@ def outperformers(truth, pred, n_std = 0):
 
 
 
-def metric_col(yt, yp, m_fn):
+def metric_col(yys, m_fn):
     # print('STARTING COL')
-    yp = np.reshape(yp, (1,np.shape(yp)[0])) if np.ndim(yp)<2 else yp
+    # yp = np.reshape(yp, (1,np.shape(yp)[0])) if np.ndim(yp)<2 else yp
     m_fn, m_par = m_fn
-    results = [m_fn(yt,p,**m_par) for p in yp]
+    results = [m_fn(t,p,**m_par) for t,p in yys]
     [_mean, _ci, _std, _min_max] = [np.mean(results),
                                     st.t.interval(0.95,
                                                   len(results)-1,
@@ -51,12 +51,11 @@ def metric_col(yt, yp, m_fn):
                                                   ),
                                     np.std(results),
                                     (np.min(results), np.max(results))]
-    return [_mean, _ci, _std, _min_maxS]
+    return [_mean, _ci, _std, _min_max]
     
-def metric_line(y_true, y_pred, m_fns, m_pars = None):
+def metric_line(yys, m_fns, m_pars = None):
     print('STARTING LINE')
-    y_true, y_pred = y_true, y_pred
-    return [[v for v in metric_col(y_true, y_pred, m_fn)] for m_fn in m_fns]
+    return [[v for v in metric_col(yys, m_fn)] for m_fn in m_fns]
 
 def build_metrics(y_sets={}, metrics =[
         ('Acc', (accuracy_score, {})),
@@ -69,14 +68,14 @@ def build_metrics(y_sets={}, metrics =[
     return_df=False):
     print('STARTING Build')
     col, m_fns = zip(*metrics)
-    lines = [[v for v in metric_line(_yt,_yp,m_fns)] for (_yt,_yp) in list(y_sets.values())]
+    lines = [[v for v in metric_line(y,m_fns)] for y in list(y_sets.values())]
     metrics= [[[np.round(v, decimals=4) for v in c] for c in l] for l in lines]
-    errors = [[[cc[0]-cc[1][0],cc[1][1]-cc[0]] for ii,cc in enumerate(l)] for l in metrics]
+    errors = [[[np.round(cc[0]-cc[1][0], decimals=4),np.round(cc[1][1]-cc[0], decimals=4)] for ii,cc in enumerate(l)] for l in metrics]
     print('ENDING Build')
     if return_df:
-        return col, np.array(metrics), errors, pd.DataFrame(metrics,index=y_sets.keys() ,columns=col)
+        return col, np.array(metrics), np.array(errors), pd.DataFrame(metrics,index=y_sets.keys() ,columns=col)
     else:
-        return col, np.array(metrics), errors
+        return col, np.array(metrics), np.array(errors)
 
 #%%
 default_metrics = [

@@ -102,7 +102,7 @@ imu_dict = {"sEMG": False, "sEMG+IMU": True}
 
 preds = {
     "sEMG": [],
-    # 'sEMG+IMU':[]
+    'sEMG+IMU':[]
     # uncomment this when that has run
 }
 labels = {"sEMG": [], "sEMG+IMU": []}
@@ -119,6 +119,7 @@ for p in preds.keys():
         model = build(base_model, f"{path}{f}", model_pars)
         print("predicting!")
         preds[p].append(model.predict(x))
+        model.evaluate(x,y, verbose = 2)
         labels[p].append(y)
 
 # dont forget the argmax!

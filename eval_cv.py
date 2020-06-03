@@ -41,7 +41,8 @@ from generator import generator
 
 #%%
 from figures.metrics import build_metrics
-
+from figures.plots import build_bar_plot
+from figures.tables import table_df
 #%%
 def get_arrays(g: generator) -> Iterable[np.ndarray]:
     return np.moveaxis(ma_batch(g.X, g.ma_len), -1, 0), g.y
@@ -81,7 +82,7 @@ def base_model(n_time, n_class, n_features, dense=[50, 50, 50], drop=[0.2, 0.2, 
     return model
 
 #%%
-print("data time")
+
 data = dataset("data/ninaPro")
 
 #%%
@@ -110,7 +111,7 @@ scores = []
 labels = []
 
 #%%
-print("printing")
+
 for p in set_names:
     path = path_dict[p]
     _p = []
@@ -126,27 +127,25 @@ for p in set_names:
         print(f'Processing: {f}')
         pred_raw = model.predict(x)
         _p.append(np.argmax(pred_raw, axis=1))
-        _s.append(model.evaluate(x,y, verbose = 2))
         _l.append(np.argmax(y, axis=1))
+        _s.append(model.evaluate(x,y, verbose = 2))
     labels.append(_l)
     preds.append(_p)
     scores.append(_s)
-
-# dont forget the argmax!
-#%%
 
 
 # %%
 # setPairs = map(lambda k: np.vstack([labels[k], preds[k]]), set_names)
 [labels, preds, scores] = map(lambda a: np.array(a),[labels, preds, scores])
-ysets = dict(zip(set_names,np.moveaxis([labels, preds],0,-1)))
+yys = np.moveaxis([labels, preds],0,-1)
+ysets = dict(zip(set_names,yys))
 
 # %%
 cols, lines, errors = build_metrics(ysets, return_df=False)
 
 
 # %%
-from figures.plots import build_bar_plot
+
 #%%
 plot_conf = {
         'title':'Model Accuracy\n(Simple vs Balanced)',
@@ -160,5 +159,24 @@ bars = [
 #%%
 build_bar_plot(bars, filePath='figures/plots/acc_cv.png', **plot_conf)
 
+
+# %%
+
+#
+t_df = table_df((lines, set_names), headers = cols)
+
+# %%
+ggroups = ['a','b','c','all']
+mask_cms = [mask_exercise(yys[0,0,0],a) for a in ggroups]
+cms = [confusion_matrix(yys[0,0,0][_m],
+    yys[0,0,1][_m],normalize='true') for _m in mask_cms]
+[plot_cm(cm,filePath=f'figures/plots/corr_{ggroups[i]}', 
+title=f'Gesture Group: {ggroups[i].upper()}') for i,cm in enumerate(cms)]
+
+mask_cms = [mask_exercise(yys[1,0,0],a) for a in ggroups]
+cms = [confusion_matrix(yys[1,0,0][_m],
+    yys[1,0,1][_m],normalize='true') for _m in mask_cms]
+[plot_cm(cm,filePath=f'figures/plots/corr_imu_{ggroups[i]}', 
+title=f'Gesture Group: {ggroups[i].capitalize()}') for i,cm in enumerate(cms)]
 
 # %%

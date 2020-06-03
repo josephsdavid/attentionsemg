@@ -15,6 +15,26 @@ plt.style.use('bmh')
 import seaborn as sns
 
 #%%
+def plot_cm(cm,mask=None, filePath=None, title=None):
+    # Generate a custom diverging colormap  
+    
+    
+    cmap = sns.diverging_palette(10, 220, as_cmap=True)
+    f, ax = plt.subplots(figsize=(12, 12))
+    sns.heatmap(cm, 
+        mask=mask,
+        ax=ax,
+        vmax=1, 
+        vmin=0, 
+        cmap="vlag",
+        center=.2,
+        square=True, 
+        linewidths=.15, 
+        cbar_kws={"shrink": .65})
+    ax.set(title=title)
+    if filePath:
+        plt.savefig(filePath,dpi=500, size=(12, 12))
+    return 
 
 def build_bar_plot(bars,filePath=None,**kwargs):
     # x_pos = np.arange(lines.shape[0])

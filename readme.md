@@ -88,5 +88,5 @@ def get_arrays(g: generator) -> Iterable[np.ndarray]:
 
 To reproduce the models described in the paper:
 
-blah
+Run any of the files (cleanup in process)
 

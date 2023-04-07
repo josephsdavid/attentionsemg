@@ -1,6 +1,9 @@
 # sEMG attention
 
-Repository for the paper *insert title here*
+Repository for the paper *sEMG Gesture Recognition with a Simple Model of Attention*
+
+For cleaner code see:
+[paper repro](https://github.com/josephsdavid/semg_repro)
 
 ## Reproduction 
 
